@@ -15,6 +15,8 @@ public class ObjectChatServerHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         ctx.writeAndFlush("Hello ,I am server");
+        String id = ctx.channel().id().asLongText();
+        ObjectChatServer.chMap.put(id,ctx.channel());
     }
 
     @Override
@@ -32,5 +34,8 @@ public class ObjectChatServerHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         cause.printStackTrace();
         ctx.close();
+        ObjectChatServer.chMap.remove(ctx.channel().id().asLongText());
     }
+
+
 }

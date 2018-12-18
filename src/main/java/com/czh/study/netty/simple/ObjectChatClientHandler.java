@@ -18,8 +18,7 @@ public class ObjectChatClientHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         // Send the first message if this handler is a client-side handler.
-        ctx.writeAndFlush("Hello ,I am client1");
-        ctx.writeAndFlush("Hello ,I am client2");
+        ctx.writeAndFlush("Hello ,I am client");
     }
 
 

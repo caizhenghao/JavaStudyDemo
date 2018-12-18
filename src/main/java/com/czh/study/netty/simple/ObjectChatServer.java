@@ -1,10 +1,7 @@
 package com.czh.study.netty.simple;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -17,6 +14,11 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 /**
  * @Author: cai.zhenghao
@@ -27,6 +29,7 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
 public class ObjectChatServer {
     static final boolean SSL = System.getProperty("ssl") != null;
     static final int PORT = Integer.parseInt(System.getProperty("port", "8007"));
+    static Map<String, Channel> chMap = new ConcurrentHashMap<String, Channel>();
 
     public static void main(String[] args) throws Exception {
         //configure ssl
@@ -61,13 +64,25 @@ public class ObjectChatServer {
 
             // Bind and start to accept incoming connections.
             ChannelFuture channelFuture = b.bind(PORT).sync();
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+            for (; ; ) {
+                String line = in.readLine();
+                if (line == null || "quit".equalsIgnoreCase(line)) {
+                    break;
+                }
+
+                // Sends the received line to the server.
+                chMap.entrySet().forEach(data -> {
+                    data.getValue().writeAndFlush(line);
+                });
+            }
+
             channelFuture.channel().closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-
-
     }
 
 }
