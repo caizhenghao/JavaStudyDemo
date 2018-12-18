@@ -18,20 +18,21 @@ public class ObjectChatClientHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         // Send the first message if this handler is a client-side handler.
-        ctx.writeAndFlush("\"Hello ,I am client");
+        ctx.writeAndFlush("Hello ,I am client1");
+        ctx.writeAndFlush("Hello ,I am client2");
     }
 
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-//        super.channelRead(ctx, msg);
+        super.channelRead(ctx, msg);
         System.out.println("Receive msg from server:" + msg);
-        ctx.write(msg);
+//        ctx.write(msg);
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        ctx.flush();
+        super.channelReadComplete(ctx);
     }
 
     @Override

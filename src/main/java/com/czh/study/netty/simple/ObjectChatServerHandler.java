@@ -12,14 +12,20 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 public class ObjectChatServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
+        ctx.writeAndFlush("Hello ,I am server");
+    }
+
+    @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-//        super.channelRead(ctx, msg);
+        super.channelRead(ctx, msg);
         System.out.println("Receive msg from client:" + msg);
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        ctx.flush();
+        super.channelReadComplete(ctx);
     }
 
     @Override
