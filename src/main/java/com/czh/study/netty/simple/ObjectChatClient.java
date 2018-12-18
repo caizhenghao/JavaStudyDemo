@@ -1,6 +1,8 @@
 package com.czh.study.netty.simple;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
@@ -13,6 +15,9 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 /**
  * @Author: cai.zhenghao
@@ -54,7 +59,27 @@ public class ObjectChatClient {
                     });
 
             // Start the connection attempt.
-            b.connect(HOST,PORT).sync().channel().closeFuture().sync();
+            ChannelFuture lastWriteFuture = null;
+            ChannelFuture channelFuture = b.connect(HOST,PORT).sync();
+            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+            for (;;) {
+                String line = in.readLine();
+                if (line == null || "quit".equalsIgnoreCase(line)) {
+                    break;
+                }
+
+                // Sends the received line to the server.
+                if(channelFuture.channel() != null) {
+                    lastWriteFuture = channelFuture.channel().writeAndFlush(line);
+                }
+            }
+
+            // Wait until all messages are flushed before closing the channel.
+            if (lastWriteFuture != null) {
+                lastWriteFuture.awaitUninterruptibly();
+            }
+            //wait for channel close
+//            channelFuture.channel().closeFuture().sync();
         } finally {
             group.shutdownGracefully();
         }

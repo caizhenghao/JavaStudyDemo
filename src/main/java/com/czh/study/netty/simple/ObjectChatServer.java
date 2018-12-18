@@ -1,6 +1,7 @@
 package com.czh.study.netty.simple;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
@@ -59,7 +60,8 @@ public class ObjectChatServer {
                     });
 
             // Bind and start to accept incoming connections.
-            b.bind(PORT).sync().channel().closeFuture().sync();
+            ChannelFuture channelFuture = b.bind(PORT).sync();
+            channelFuture.channel().closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
