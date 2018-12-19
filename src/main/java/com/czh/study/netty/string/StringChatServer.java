@@ -1,7 +1,12 @@
-package com.czh.study.netty.simple;
+package com.czh.study.netty.string;
 
+import com.czh.study.netty.simple.ObjectChatServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -27,9 +32,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Date: Created in 2018/12/17  5:49 PM
  * @Modified By:
  */
-public class ObjectChatServer {
+public class StringChatServer {
     static final boolean SSL = System.getProperty("ssl") != null;
-    static final int PORT = Integer.parseInt(System.getProperty("port", "8007"));
+    static final int PORT = Integer.parseInt(System.getProperty("port", "8023"));
     static Map<String, Channel> chMap = new ConcurrentHashMap<String, Channel>();
 
     public static void main(String[] args) throws Exception {
@@ -44,24 +49,12 @@ public class ObjectChatServer {
 
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
-
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            ChannelPipeline p = socketChannel.pipeline();
-                            if (sslCtx != null) {
-                                p.addLast(sslCtx.newHandler(socketChannel.alloc()));
-                            }
-
-                            p.addLast(new ObjectEncoder(),
-                                    new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
-                                    new ObjectChatServerHandler());
-                        }
-                    });
+                    .childHandler(new StringServerInitializer(sslCtx));
 
             // Bind and start to accept incoming connections.
             ChannelFuture channelFuture = b.bind(PORT).sync();
@@ -76,7 +69,8 @@ public class ObjectChatServer {
                     continue;
                 }
 
-                // Sends the received line to the server.
+                line = line + "\r\n";
+                // Sends the received line to the server.have to end by "\r\n"
                 Iterator<Map.Entry<String,Channel>> iterator = chMap.entrySet().iterator();
                 while (iterator.hasNext()){
                     iterator.next().getValue().writeAndFlush(line);
