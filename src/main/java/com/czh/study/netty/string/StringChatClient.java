@@ -53,7 +53,9 @@ public class StringChatClient {
                 line = line + "\r\n";
                 // Sends the received line to the server.have to end by "\r\n"
                 if(channelFuture.channel() != null) {
+//                    for (int i = 0; i < 10000; i++) {
                     lastWriteFuture = channelFuture.channel().writeAndFlush(line);
+//                    }
                 }
             }
 
