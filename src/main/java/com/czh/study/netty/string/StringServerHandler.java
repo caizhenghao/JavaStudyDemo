@@ -1,8 +1,11 @@
 package com.czh.study.netty.string;
 
-import com.czh.study.netty.simple.ObjectChatServer;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+
+import java.net.InetAddress;
+import java.util.Date;
 
 /**
  * @Author: cai.zhenghao
@@ -10,17 +13,27 @@ import io.netty.channel.SimpleChannelInboundHandler;
  * @Date: Created in 2018/12/19  5:04 PM
  * @Modified By:
  */
+@ChannelHandler.Sharable
 public class StringServerHandler extends SimpleChannelInboundHandler<String>{
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, String msg) throws Exception {
         System.out.println("Receive msg from client:" + msg);
     }
 
+//    @Override
+//    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+//        super.channelRead(ctx, msg);
+//        System.out.println("Receive msg from client:" + msg);
+//    }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         String id = ctx.channel().id().asLongText();
         StringChatServer.chMap.put(id,ctx.channel());
+        ctx.write("Welcome to " + InetAddress.getLocalHost().getHostName() + "!\r\n");
+        ctx.write("It is " + new Date() + " now.\r\n");
+        ctx.flush();
     }
 
     @Override

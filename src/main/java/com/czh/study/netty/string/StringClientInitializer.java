@@ -6,6 +6,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.ssl.SslContext;
 
 
@@ -18,7 +19,7 @@ import io.netty.handler.ssl.SslContext;
 public class StringClientInitializer extends ChannelInitializer<SocketChannel>{
 
     private static final StringDecoder DECODER = new StringDecoder();
-    private static final StringDecoder ENCODER = new StringDecoder();
+    private static final StringEncoder ENCODER = new StringEncoder();
 
     private static final StringClientHandler CLIENT_HANDLER = new StringClientHandler();
 
@@ -28,12 +29,14 @@ public class StringClientInitializer extends ChannelInitializer<SocketChannel>{
         this.sslCtx = sslCtx;
     }
 
+
+
     @Override
-    protected void initChannel(SocketChannel socketChannel) throws Exception {
-        ChannelPipeline pipeline = socketChannel.pipeline();
+    protected void initChannel(SocketChannel ch) throws Exception {
+        ChannelPipeline pipeline = ch.pipeline();
 
         if(sslCtx != null){
-            pipeline.addLast(sslCtx.newHandler(socketChannel.alloc(),StringChatClient.HOST,StringChatClient.PORT));
+            pipeline.addLast(sslCtx.newHandler(ch.alloc(),StringChatClient.HOST,StringChatClient.PORT));
         }
 
         // Add the text line codec combination first,事实上是通过换行符来分割多个string避免粘包

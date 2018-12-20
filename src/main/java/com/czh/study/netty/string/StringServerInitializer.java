@@ -6,6 +6,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import io.netty.handler.ssl.SslContext;
 
 
@@ -18,7 +19,7 @@ import io.netty.handler.ssl.SslContext;
 public class StringServerInitializer extends ChannelInitializer<SocketChannel>{
 
     private static final StringDecoder DECODER = new StringDecoder();
-    private static final StringDecoder ENCODER = new StringDecoder();
+    private static final StringEncoder ENCODER = new StringEncoder();
 
     private static final StringServerHandler SERVER_HANDLER = new StringServerHandler();
 
