@@ -1,4 +1,4 @@
-package com.czh.study.netty.simple;
+package com.czh.study.netty.objectse;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
