@@ -1,4 +1,4 @@
-package com.czh.study.leetcode.pro3;
+package com.czh.study.leetcode.pro7;
 
 /**
  * @Auther caizhenghao
