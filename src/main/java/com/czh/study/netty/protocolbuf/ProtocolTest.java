@@ -11,11 +11,11 @@ import com.google.protobuf.InvalidProtocolBufferException;
 public class ProtocolTest {
 
     public static void main(String[] args) throws InvalidProtocolBufferException {
-        ProtoDemo.Student student =  ProtoDemo.Student.newBuilder()
+        StudentPb.Student student =  StudentPb.Student.newBuilder()
                 .setId(100).setName("蔡正浩")
                 .setEmail("zhuliangliang.me").build();
         System.out.println(student);
-        ProtoDemo.Student student1 = ProtoDemo.Student.parseFrom(student.toByteArray());
+        StudentPb.Student student1 = StudentPb.Student.parseFrom(student.toByteArray());
         System.out.println(student1.getName());
     }
 }
