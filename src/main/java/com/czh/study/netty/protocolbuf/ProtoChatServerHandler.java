@@ -15,7 +15,7 @@ public class ProtoChatServerHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         System.out.println("channelActive");
         super.channelActive(ctx);
-        ctx.writeAndFlush("Hello ,I am server");
+//        ctx.writeAndFlush("Hello ,I am server");
         String id = ctx.channel().id().asLongText();
         ProtoChatServer.chMap.put(id,ctx.channel());
     }
@@ -24,7 +24,15 @@ public class ProtoChatServerHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 //        System.out.println("channelRead");
         super.channelRead(ctx, msg);
-        System.out.println("Receive msg from client:" + msg);
+//        System.out.println("Receive msg from client:" + msg);
+        if (msg instanceof StudentPb.Student) {
+            StudentPb.Student student = (StudentPb.Student) msg;
+            System.out.println("Receive msg from client,is a student ,name is:" + student.getName());
+        } else if (msg instanceof TeacherPb.Teacher) {
+            TeacherPb.Teacher teacher = (TeacherPb.Teacher) msg;
+            System.out.println("Receive msg from client,is a teacher ,name is:" + teacher.getName()
+                    + ",nick is:" + teacher.getNick());
+        }
     }
 
     @Override

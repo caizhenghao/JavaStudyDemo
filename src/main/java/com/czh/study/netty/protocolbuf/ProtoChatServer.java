@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Description: 简单的收发消息demo，参考了github上https://github.com/netty/netty 的例子
  * @Date: Created in 2018/12/17  5:49 PM
  * @Modified By:
+ * 参考 https://marlay.iteye.com/blog/2427985
  */
 public class ProtoChatServer {
     static final boolean SSL = System.getProperty("ssl") != null;
@@ -61,7 +62,8 @@ public class ProtoChatServer {
                                 p.addLast(sslCtx.newHandler(socketChannel.alloc()));
                             }
 
-                            p.addLast(new ProtoChatServerHandler());
+                            p.addLast(new CustomProtobufDecoder());
+                            p.addLast(new CustomProtobufEncoder());
                             p.addLast(new ProtoChatServerHandler());
                         }
                     });
@@ -71,18 +73,35 @@ public class ProtoChatServer {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             while (true) {
-                String line = null;
+                String msg = null;
                 try {
-                    line = in.readLine();
-                }catch (Exception e){
+                    msg = in.readLine();
+                } catch (Exception e) {
                     e.printStackTrace();
                     continue;
                 }
 
                 // Sends the received line to the server.
-                Iterator<Map.Entry<String,Channel>> iterator = chMap.entrySet().iterator();
-                while (iterator.hasNext()){
-                    iterator.next().getValue().writeAndFlush(line);
+                Object msgOb = null;
+                if(msg.equals("stu")){
+                    StudentPb.Student student =  StudentPb.Student.newBuilder()
+                            .setId(100).setName("学生klc")
+                            .setEmail("student@163.com").build();
+                    msgOb = student;
+                }else if(msg.equals("tea")){
+                    TeacherPb.Teacher teacher =  TeacherPb.Teacher.newBuilder()
+                            .setId(100).setName("老师")
+                            .setEmail("teacher@163.com")
+                            .setNick("Hehe")
+                            .build();
+                    msgOb = teacher;
+                }else {
+                    System.out.println("消息类型不支持");
+                    continue;
+                }
+                Iterator<Map.Entry<String, Channel>> iterator = chMap.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    iterator.next().getValue().writeAndFlush(msgOb);
                 }
             }
 

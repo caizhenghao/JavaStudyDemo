@@ -10,6 +10,7 @@ import io.netty.handler.codec.MessageToByteEncoder;
  * @Description:
  * @Date: Created in 2019/1/31  6:26 PM
  * @Modified By:
+ * 参考 https://marlay.iteye.com/blog/2427985
  */
 public class CustomProtobufEncoder extends MessageToByteEncoder<MessageLite> {
 

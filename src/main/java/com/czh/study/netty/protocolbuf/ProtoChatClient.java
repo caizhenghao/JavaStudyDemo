@@ -8,6 +8,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
@@ -23,6 +24,7 @@ import java.io.InputStreamReader;
  * @Description: 简单的收发消息demo，参考了github上https://github.com/netty/netty 的例子
  * @Date: Created in 2018/12/17  4:36 PM
  * @Modified By:
+ * 参考 https://marlay.iteye.com/blog/2427985
  */
 public class ProtoChatClient {
     static final boolean SSL = System.getProperty("ssl") != null;
@@ -49,27 +51,44 @@ public class ProtoChatClient {
                         public void initChannel(SocketChannel socketChannel) throws Exception {
                             ChannelPipeline p = socketChannel.pipeline();
                             if (sslCtx != null) {
-                                p.addLast(sslCtx.newHandler(socketChannel.alloc(),HOST,PORT));
+                                p.addLast(sslCtx.newHandler(socketChannel.alloc(), HOST, PORT));
                             }
-                            p.addLast(new ObjectEncoder(),
-                                    new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
-                                    new ProtoChatClientHandler());
+                            p.addLast(new CustomProtobufDecoder());
+                            p.addLast(new CustomProtobufEncoder());
+                            p.addLast(new ProtoChatClientHandler());
                         }
                     });
 
             // Start the connection attempt.
             ChannelFuture lastWriteFuture = null;
-            ChannelFuture channelFuture = b.connect(HOST,PORT).sync();
+            ChannelFuture channelFuture = b.connect(HOST, PORT).sync();
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-            for (;;) {
-                String line = in.readLine();
-                if (line == null || "quit".equalsIgnoreCase(line)) {
+            for (; ; ) {
+                String msg = in.readLine();
+                if (msg == null || "quit".equalsIgnoreCase(msg)) {
                     break;
                 }
 
                 // Sends the received line to the server.
-                if(channelFuture.channel() != null) {
-                    lastWriteFuture = channelFuture.channel().writeAndFlush(line);
+                Object msgOb = null;
+                if (msg.equals("stu")) {
+                    StudentPb.Student student = StudentPb.Student.newBuilder()
+                            .setId(100).setName("学生klc")
+                            .setEmail("student@qq.com").build();
+                    msgOb = student;
+                } else if (msg.equals("tea")) {
+                    TeacherPb.Teacher teacher = TeacherPb.Teacher.newBuilder()
+                            .setId(100).setName("老师")
+                            .setNick("Hehe")
+                            .setEmail("teacher@qq.com").build();
+                    msgOb = teacher;
+                } else {
+                    System.out.println("消息类型不支持");
+                    continue;
+                }
+
+                if (channelFuture.channel() != null) {
+                    lastWriteFuture = channelFuture.channel().writeAndFlush(msgOb);
                 }
             }
 
