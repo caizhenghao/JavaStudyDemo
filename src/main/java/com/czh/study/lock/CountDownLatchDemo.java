@@ -23,8 +23,8 @@ public class CountDownLatchDemo {
         public void run() {
             try {
                 Thread.sleep(100 + new Random().nextInt(100));
+                System.out.println(Thread.currentThread().getName() + "跑完@" + System.currentTimeMillis());
                 countDownLatch.countDown();
-                System.out.println(Thread.currentThread().getName() + "启动@" + System.currentTimeMillis());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
